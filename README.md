@@ -52,7 +52,7 @@ A lightweight Python package for external clustering validation metrics.
 
 ## Installation
 
-You can install `extclustval` from PyPI:
+You can install `extclustval` from [PyPI](https://pypi.org/project/extclustval/):
 
 ```bash
 pip install extclustval
