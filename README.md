@@ -10,8 +10,8 @@ A lightweight Python package for external clustering validation metrics.
 
 | Attribute | Metric |
 |---|---|
-| `ari` | Adjusted Rand Index |
 | `ri` | Rand Index |
+| `ari` | Adjusted Rand Index |
 | `nmi` | Normalized Mutual Information |
 | `ami` | Adjusted Mutual Information |
 | `homogeneity` | Homogeneity score |
