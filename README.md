@@ -183,73 +183,161 @@ Do not modify `score.y_true` or `score.y_pred` after creating the object.
 
 ## Metric definitions
 
-### Adjusted Rand Index (ARI)
-
-Adjusted Rand Index measures similarity between two partitions by comparing pairs of samples. It is adjusted for chance, so random clusterings tend to score near 0. A perfect match scores 1.
-
 ### Rand Index (RI)
 
-Rand Index measures the proportion of sample pairs that are consistently grouped or separated in both the true labels and predicted clusters. It is not adjusted for chance.
+Rand Index measures how similar two partitions are by looking at all possible pairs of samples.
+
+For every pair of samples, RI checks whether the true labels and predicted clusters agree:
+
+- the pair is in the same true class and also in the same predicted cluster, or
+- the pair is in different true classes and also in different predicted clusters.
+
+The score is the fraction of pairs where this agreement happens.
+
+A perfect clustering scores `1.0`. However, RI is not adjusted for chance, so it can sometimes look high even when the clustering is not very meaningful, especially when many sample pairs are easy to separate.
+
+### Adjusted Rand Index (ARI)
+
+Adjusted Rand Index is a chance-adjusted version of the Rand Index.
+
+Like RI, ARI compares pairs of samples and checks whether the true labels and predicted clusters agree. The difference is that ARI corrects for the agreement that would be expected just by random chance.
+
+A perfect clustering scores `1.0`. Random clusterings tend to score near `0.0`. Bad clusterings can score below `0.0`.
+
+ARI is one of the most commonly used external clustering validation metrics because it is permutation-invariant and adjusted for chance.
 
 ### Normalized Mutual Information (NMI)
 
-Normalized Mutual Information measures how much information the predicted clusters and true labels share, normalized to a fixed range. A perfect match scores 1.
+Normalized Mutual Information measures how much information the predicted clusters contain about the true labels.
+
+If knowing a sample’s predicted cluster tells you a lot about its true class, NMI is high. If the predicted clusters and true labels are mostly unrelated, NMI is low.
+
+NMI is normalized so that a perfect match scores `1.0`. It is permutation-invariant, meaning it does not matter which numeric IDs are used for the clusters. However, NMI is not adjusted for chance.
 
 ### Adjusted Mutual Information (AMI)
 
-Adjusted Mutual Information is a chance-adjusted version of mutual information. It is often safer than NMI when comparing clusterings with different numbers of clusters.
+Adjusted Mutual Information is a chance-adjusted version of mutual information.
+
+Like NMI, AMI measures how much information is shared between the predicted clusters and the true labels. Unlike NMI, AMI corrects for the amount of information that would be expected by random cluster assignments.
+
+A perfect clustering scores `1.0`. Random clusterings tend to score near `0.0`.
+
+AMI is useful when comparing clustering results with different numbers of clusters, because it is less likely than NMI to reward structure that appears only by chance.
 
 ### Homogeneity
 
 Homogeneity measures whether each predicted cluster contains samples from only one ground-truth class.
 
+A clustering has high homogeneity when its clusters are pure. For example, if one predicted cluster contains only samples from class `A`, that cluster is homogeneous.
+
+Homogeneity penalizes clusters that mix multiple true classes together. However, homogeneity alone does not penalize splitting one true class into many small clusters.
+
 ### Completeness
 
 Completeness measures whether all samples from the same ground-truth class are assigned to the same predicted cluster.
 
+A clustering has high completeness when each true class is mostly captured by one cluster. For example, if all samples from class `A` are placed in the same predicted cluster, completeness is high for that class.
+
+Completeness penalizes splitting a true class across multiple clusters. However, completeness alone does not strongly penalize merging different true classes into the same cluster.
+
 ### V-measure
 
-V-measure is the harmonic mean of homogeneity and completeness.
+V-measure combines homogeneity and completeness into one score.
+
+It is the harmonic mean of homogeneity and completeness, so it rewards clusterings that are both class-pure and class-complete.
+
+A perfect clustering scores `1.0`. V-measure is useful when you want a single score that balances over-splitting and over-merging.
 
 ### Fowlkes-Mallows Index (FMI)
 
-Fowlkes-Mallows Index is a pair-counting metric based on the geometric mean of pairwise precision and pairwise recall.
+Fowlkes-Mallows Index is a pair-based clustering metric.
+
+It looks at pairs of samples and compares which pairs are placed together in the predicted clustering and which pairs truly belong together according to the ground-truth labels.
+
+FMI is the geometric mean of pairwise precision and pairwise recall. A perfect clustering scores `1.0`.
+
+It is useful when you want a score based on pairwise grouping behavior.
 
 ### Purity
 
-Purity measures how much each predicted cluster is dominated by its most common ground-truth class. It is easy to interpret but biased toward many clusters.
+Purity measures how much each predicted cluster is dominated by a single ground-truth class.
+
+For each predicted cluster, purity finds the most common true class inside that cluster. It then sums these dominant-class counts across all clusters and divides by the total number of samples.
+
+Purity is easy to understand: high purity means clusters mostly contain samples from one class.
+
+However, purity is biased toward many clusters. If every sample is placed in its own cluster, purity becomes perfect, even though the clustering may not be useful.
 
 ### Inverse purity
 
-Inverse purity measures how well each ground-truth class is captured by its best matching predicted cluster.
+Inverse purity is the class-oriented counterpart of purity.
+
+Instead of asking whether each predicted cluster is dominated by one true class, inverse purity asks whether each true class is well captured by one predicted cluster.
+
+For each ground-truth class, it finds the predicted cluster that contains the largest number of samples from that class. These counts are summed and divided by the total number of samples.
+
+Inverse purity rewards clusterings that avoid splitting true classes across many clusters.
 
 ### Clustering accuracy
 
-Clustering accuracy uses optimal Hungarian matching to align predicted cluster IDs with ground-truth class labels before computing accuracy. This is useful when predicted clusters roughly correspond one-to-one with true classes.
+Clustering accuracy compares predicted cluster labels with ground-truth labels after aligning cluster IDs to class IDs.
+
+Raw classification accuracy is not appropriate for clustering because cluster labels are arbitrary. For example, cluster `0` and cluster `5` could represent the same group.
+
+To handle this, `extclustval` uses optimal Hungarian matching to find the best one-to-one mapping between predicted clusters and true classes. It then computes the fraction of samples that are correctly matched under that mapping.
+
+This metric is most appropriate when the predicted clusters roughly correspond one-to-one with the ground-truth classes. It can be misleading when the number of clusters and classes differs a lot, or when the clustering intentionally splits or merges classes.
 
 ### Pairwise precision
 
-Pairwise precision measures, among all pairs placed in the same predicted cluster, how many also belong to the same ground-truth class.
+Pairwise precision measures how reliable predicted same-cluster decisions are.
+
+It looks at all sample pairs that were placed in the same predicted cluster. Among those pairs, it measures how many truly belong to the same ground-truth class.
+
+High pairwise precision means the clustering makes few incorrect merges.
 
 ### Pairwise recall
 
-Pairwise recall measures, among all pairs belonging to the same ground-truth class, how many were placed in the same predicted cluster.
+Pairwise recall measures how well true same-class pairs are recovered.
+
+It looks at all sample pairs that belong to the same ground-truth class. Among those pairs, it measures how many were placed in the same predicted cluster.
+
+High pairwise recall means the clustering makes few incorrect splits.
 
 ### Pairwise F1
 
 Pairwise F1 is the harmonic mean of pairwise precision and pairwise recall.
 
+It balances two types of clustering errors:
+
+- merging samples that should be separate, and
+- splitting samples that should be together.
+
+Pairwise F1 is often a better clustering-native alternative to classification F1.
+
 ### BCubed precision
 
-BCubed precision measures, for each sample, how pure its predicted cluster is with respect to that sample’s true class, then averages over all samples.
+BCubed precision measures cluster purity from each sample’s point of view.
+
+For each sample, it looks at the predicted cluster containing that sample and checks what fraction of that cluster has the same true label as the sample. These per-sample precision values are averaged across all samples.
+
+High BCubed precision means samples tend to be placed in clusters containing mostly members of their own true class.
 
 ### BCubed recall
 
-BCubed recall measures, for each sample, how well its true class is recovered inside its predicted cluster, then averages over all samples.
+BCubed recall measures class recovery from each sample’s point of view.
+
+For each sample, it looks at the sample’s true class and checks what fraction of that class appears in the same predicted cluster as the sample. These per-sample recall values are averaged across all samples.
+
+High BCubed recall means samples from the same true class tend to stay together.
 
 ### BCubed F1
 
 BCubed F1 is the harmonic mean of BCubed precision and BCubed recall.
+
+It balances sample-level cluster purity and sample-level class recovery.
+
+BCubed F1 is useful when clusters have different sizes or when you want a metric that evaluates clustering quality from the perspective of individual samples.
 
 ## Requirements
 
