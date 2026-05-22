@@ -146,6 +146,8 @@ Because of this, `extclustval` computes clustering accuracy using optimal Hungar
 score.clustering_accuracy
 ```
 
+The short alias `score.acc` is also available and returns the same value.
+
 This metric is most appropriate when the number of predicted clusters roughly matches the number of ground-truth classes.
 
 For general clustering evaluation, adjusted and permutation-invariant metrics such as ARI, AMI, NMI, pairwise F1, and BCubed F1 are often safer to report.
@@ -178,6 +180,76 @@ new_score = ClusterScore(y_true, new_y_pred)
 ```
 
 Do not modify `score.y_true` or `score.y_pred` after creating the object.
+
+## Metric definitions
+
+### Adjusted Rand Index (ARI)
+
+Adjusted Rand Index measures similarity between two partitions by comparing pairs of samples. It is adjusted for chance, so random clusterings tend to score near 0. A perfect match scores 1.
+
+### Rand Index (RI)
+
+Rand Index measures the proportion of sample pairs that are consistently grouped or separated in both the true labels and predicted clusters. It is not adjusted for chance.
+
+### Normalized Mutual Information (NMI)
+
+Normalized Mutual Information measures how much information the predicted clusters and true labels share, normalized to a fixed range. A perfect match scores 1.
+
+### Adjusted Mutual Information (AMI)
+
+Adjusted Mutual Information is a chance-adjusted version of mutual information. It is often safer than NMI when comparing clusterings with different numbers of clusters.
+
+### Homogeneity
+
+Homogeneity measures whether each predicted cluster contains samples from only one ground-truth class.
+
+### Completeness
+
+Completeness measures whether all samples from the same ground-truth class are assigned to the same predicted cluster.
+
+### V-measure
+
+V-measure is the harmonic mean of homogeneity and completeness.
+
+### Fowlkes-Mallows Index (FMI)
+
+Fowlkes-Mallows Index is a pair-counting metric based on the geometric mean of pairwise precision and pairwise recall.
+
+### Purity
+
+Purity measures how much each predicted cluster is dominated by its most common ground-truth class. It is easy to interpret but biased toward many clusters.
+
+### Inverse purity
+
+Inverse purity measures how well each ground-truth class is captured by its best matching predicted cluster.
+
+### Clustering accuracy
+
+Clustering accuracy uses optimal Hungarian matching to align predicted cluster IDs with ground-truth class labels before computing accuracy. This is useful when predicted clusters roughly correspond one-to-one with true classes.
+
+### Pairwise precision
+
+Pairwise precision measures, among all pairs placed in the same predicted cluster, how many also belong to the same ground-truth class.
+
+### Pairwise recall
+
+Pairwise recall measures, among all pairs belonging to the same ground-truth class, how many were placed in the same predicted cluster.
+
+### Pairwise F1
+
+Pairwise F1 is the harmonic mean of pairwise precision and pairwise recall.
+
+### BCubed precision
+
+BCubed precision measures, for each sample, how pure its predicted cluster is with respect to that sample’s true class, then averages over all samples.
+
+### BCubed recall
+
+BCubed recall measures, for each sample, how well its true class is recovered inside its predicted cluster, then averages over all samples.
+
+### BCubed F1
+
+BCubed F1 is the harmonic mean of BCubed precision and BCubed recall.
 
 ## Requirements
 
