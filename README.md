@@ -1,5 +1,12 @@
 # extclustval
 
+<p align="center">
+  <a href="https://pypi.org/project/extclustval/"><img src="https://img.shields.io/pypi/v/extclustval.svg?color=blue" alt="PyPI version"></a>&nbsp;&nbsp;
+  <a href="https://pypi.org/project/extclustval/"><img src="https://img.shields.io/pypi/pyversions/extclustval.svg" alt="Python versions"></a>&nbsp;&nbsp;
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>&nbsp;&nbsp;
+  <a href="https://pepy.tech/project/extclustval"><img src="https://pepy.tech/badge/extclustval" alt="Downloads"></a>
+</p>
+
 A lightweight Python package for external clustering validation metrics.
 
 `extclustval` provides a simple `ClusterScore` class for evaluating clustering results against ground-truth labels.
