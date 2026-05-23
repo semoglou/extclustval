@@ -11,6 +11,17 @@ A lightweight Python package for external clustering validation metrics.
 
 `extclustval` provides a simple `ClusterScore` class for evaluating clustering results against ground-truth labels.
 
+## Related packages
+
+This package is part of a small clustering-validation ecosystem:
+
+| Package | Purpose |
+|---|---|
+| [`intclustval`](https://github.com/semoglou/intclustval) | Internal clustering validation metrics |
+| [`extclustval`](https://github.com/semoglou/extclustval) | External clustering validation metrics using ground-truth labels |
+| [`sil-score`](https://pypi.org/project/sil-score/) | Exact and approximate silhouette scoring |
+
+
 ## Metrics included
 
 ### Standard external clustering metrics
